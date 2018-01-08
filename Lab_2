@@ -1,0 +1,68 @@
+class Array
+
+  def func_map(&closure)
+    answ = processing do |array_part|
+      array_part.map(&closure)
+    end
+    #result.flatten
+  end
+  
+  def func_any?(&closure)
+    answ = processing do |array_part|
+      array_part.any?(&closure)
+    end
+
+    answ.any?{|el| el}
+  end
+
+  def func_all?(&closure)
+    answ = processing do |array_part|
+      part_value = array_part.all?(&closure)
+      #part_value
+    end
+
+    answ.all?{|el| el}
+  end
+
+  def func_select(&closure)
+    answ = processing do |array_part|
+      array_part.select(&closure)
+    end
+
+    answ.flatten
+  end
+
+  def processing(&processing_function)
+
+    defThreadNumbers = 4
+    arrSize = self.size
+
+    proc_number = arrSize <= defThreadNumbers ? arrSize : defThreadNumbers
+    proc_element_count = (arrSize / proc_number).floor
+
+    self_array = self
+
+   (1..proc_number).map() do |thread_number|
+      start_position = (thread_number - 1) * proc_element_count
+      end_position = start_position + proc_element_count - 1
+      if thread_number == proc_number
+        end_position = arrSize - 1
+      end
+
+        Thread.new do
+        array_part = self_array[start_position..end_position]
+        Thread.current["answ"] =  yield array_part
+      end
+   end
+   .each{|t| t.join}
+   .map {|thread| thread["answ"]}
+  end
+
+end
+
+arr = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+p arr.func_map{|el| el * 5}
+
+
+gets
