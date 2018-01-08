@@ -1,0 +1,9 @@
+input = ["a","b","c"]
+n = 3
+def func(input, n)
+(1..n-1).reduce(input) {|output|output.map {|i| 
+    input.map {|k|i + k unless i[-1] == k 
+}.reject(&:nil?)}.reduce(:+)}
+end
+
+p func(input, n)
